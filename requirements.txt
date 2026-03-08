@@ -8,3 +8,4 @@ numpy==2.3.3
 prometheus-fastapi-instrumentator==7.1.0
 python-json-logger==3.3.0
 locust
+httpx==0.28.1
