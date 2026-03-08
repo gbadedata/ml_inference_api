@@ -1,13 +1,16 @@
 import logging
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 
 def setup_logging():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
+    if logger.handlers:
+        logger.handlers.clear()
+
     handler = logging.StreamHandler()
-    formatter = jsonlogger.JsonFormatter()
+    formatter = JsonFormatter()
 
     handler.setFormatter(formatter)
     logger.addHandler(handler)
