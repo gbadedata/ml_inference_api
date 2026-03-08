@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+
+# Virtual environment
+.venv/
+
+# Environment files
+.env
+
+# Local artifacts
+installed_packages.txt
+model/artifact/*.joblib
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Docker
+*.log
