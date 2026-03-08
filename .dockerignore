@@ -1,0 +1,14 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.env
+.venv/
+docs/evidence/
+tests/
+.pytest_cache/
+.vscode/
+installed_packages.txt
