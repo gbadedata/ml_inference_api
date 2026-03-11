@@ -141,3 +141,16 @@ docs/evidence/
 Evidence mapping:
 
 docs/evidence/evidence_index.md
+
+## Cloud Deployment
+
+The containerized ML inference API was deployed to Render as a public web service using the project’s GitHub repository and Dockerfile.
+
+Cloud deployment verified:
+- public URL reachable
+- `/docs` available
+- `/health/live` available
+- `/health/ready` available
+- `/predict` returning successful inference
+
+Note: the Render deployment uses a free web service instance for demonstration purposes.
