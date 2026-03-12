@@ -1,0 +1,27 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-inference-api
+  namespace: ml-inference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ml-inference-api
+  template:
+    metadata:
+      labels:
+        app: ml-inference-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/gbadedata/ml_inference_api:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
