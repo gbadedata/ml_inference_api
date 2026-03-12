@@ -1,263 +1,361 @@
-# ML Inference API --- Production-Style ML Inference Service
 
-## Overview
+# ML Inference API
 
-This project demonstrates how to take a trained machine learning model
-beyond notebook experimentation and operate it as a service.
+Production‑style machine learning inference service demonstrating how to take a trained ML model and deploy it as a scalable API with monitoring, containerization, CI/CD, Kubernetes, and cloud infrastructure.
 
-The system trains a model offline, serializes the artifact, exposes it
-through a FastAPI inference API, validates requests, emits Prometheus
-metrics, runs automated tests, packages the application with Docker,
-supports observability with Prometheus and Grafana, performs load
-testing with Locust, publishes container images to GitHub Container
-Registry (GHCR), and deploys the service through Kubernetes, ingress,
-and a public cloud web service.
+---
 
-This is a production-style project focused on engineering practice
-rather than only model training.
+# Project Overview
 
-------------------------------------------------------------------------
+This project demonstrates the **full engineering lifecycle of a machine learning service**, moving beyond notebook experiments into a real deployable system.
 
-## Live Deployment
+The system performs the following:
 
-Public service https://ml-inference-api-tagq.onrender.com
+• Train a machine learning model offline  
+• Serialize the trained model artifact  
+• Serve predictions through a **FastAPI inference API**  
+• Validate requests and responses with **Pydantic**  
+• Provide **health endpoints** for infrastructure monitoring  
+• Expose **Prometheus metrics**  
+• Run **automated tests using pytest**  
+• Package the service with **Docker**  
+• Monitor the system with **Prometheus and Grafana**  
+• Perform **load testing using Locust**  
+• Build and publish images via **GitHub Actions CI/CD**  
+• Deploy container images to **GitHub Container Registry and Amazon ECR**  
+• Deploy to **Kubernetes with HPA and ingress**  
+• Deploy publicly using **Render**  
+• Deploy using **AWS ECS Fargate behind an Application Load Balancer**
 
-Swagger interface https://ml-inference-api-tagq.onrender.com/docs
+This project focuses on **ML engineering and deployment practices**, not just model training.
 
-Health endpoints GET /health/live GET /health/ready
+---
 
-Metrics GET /metrics
+# Live Deployments
 
-Prediction endpoint POST /predict
+## Render Deployment
 
-------------------------------------------------------------------------
+Public service:
 
-## Project Objective
+https://ml-inference-api-tagq.onrender.com
 
-Most ML tutorials stop after training a model. Real systems require
-additional engineering layers including: - repeatable model packaging -
-API design and validation - automated testing - observability -
-containerization - deployment workflows - infrastructure exposure
+Swagger UI:
 
-This project demonstrates the path from: Trained model → API service →
-container → monitored deployment
+https://ml-inference-api-tagq.onrender.com/docs
 
-------------------------------------------------------------------------
+---
 
-## Core Features
+## AWS ECS Fargate Deployment
 
-Machine Learning - offline model training with scikit-learn - serialized
-model artifact using joblib - reproducible artifact generation during
-Docker build
+The application is deployed using:
 
-API - FastAPI inference service - request and response validation with
-Pydantic - health endpoints for liveness and readiness - automatic
-Swagger documentation
+• Amazon ECS Fargate  
+• Application Load Balancer  
+• Target Groups with health checks  
+• Security groups controlling network access  
 
-Testing - automated API tests using pytest - validation of prediction,
-health checks, and invalid payloads
+Endpoints exposed through ALB:
 
-Observability - Prometheus metrics exposure - Prometheus target
-validation - Grafana dashboard visualization - load testing with Locust
+GET /health/live  
+GET /health/ready  
+GET /docs  
+POST /predict
 
-Containerization - Docker image build - container runtime validation -
-Docker Compose observability stack
+---
 
-Delivery and Registry - GitHub Actions CI pipeline - Docker image
-publishing to GHCR - remote container pull verification
+# Technology Stack
 
-Orchestration - Kubernetes deployment and service - resource requests
-and limits - rolling deployment strategy - Horizontal Pod Autoscaler
-(HPA) - ingress-nginx controller and ingress routing
+## Programming
+Python
 
-Cloud Deployment - public Docker deployment on Render - successful
-application startup in managed environment - public API access
+## Machine Learning
+scikit‑learn  
+NumPy  
+joblib
 
-------------------------------------------------------------------------
+## API Layer
+FastAPI  
+Pydantic  
+Uvicorn
 
-## Technology Stack
+## Testing
+pytest
 
-Programming and ML - Python - scikit-learn - NumPy - joblib
+## Containerization
+Docker  
+Docker Compose
 
-API - FastAPI - Pydantic - Uvicorn
+## Observability
+Prometheus  
+Grafana
 
-Testing - pytest
+## Load Testing
+Locust
 
-Containerization - Docker - Docker Compose
+## CI/CD
+GitHub Actions
 
-Observability - Prometheus - Grafana - Locust -
-prometheus-fastapi-instrumentator
+## Container Registries
+GitHub Container Registry (GHCR)  
+Amazon Elastic Container Registry (ECR)
 
-CI/CD and Registry - GitHub Actions - GitHub Container Registry (GHCR)
+## Orchestration
+Kubernetes  
+Ingress NGINX
 
-Infrastructure - Kubernetes - ingress-nginx - Render
+## Cloud Platforms
+Render  
+AWS ECS Fargate  
+AWS Application Load Balancer
 
-------------------------------------------------------------------------
+---
 
-## Architecture
+# System Architecture
 
-Local and container flow Client → FastAPI API → Model Artifact → Metrics
-→ Prometheus → Grafana
+## Local Development Flow
 
-Delivery pipeline GitHub Push → GitHub Actions → Run Tests → Build
-Docker Image → Push to GHCR → Deployment platform pulls image
+Client  
+→ FastAPI API  
+→ Model Artifact  
+→ Metrics Endpoint  
+→ Prometheus  
+→ Grafana
 
-Kubernetes flow Client → Ingress → Kubernetes Service → FastAPI Pods →
-Model Artifact
+---
 
-Public deployment flow GitHub Repository → Docker Build → Model Artifact
-Generated → Public Web Service
+## CI/CD Flow
 
-------------------------------------------------------------------------
+GitHub Push  
+→ GitHub Actions  
+→ Run Tests  
+→ Build Docker Image  
+→ Push Image to GHCR / ECR
 
-## API Endpoints
+---
 
-GET /health/live\
-Returns liveness status.
+## Kubernetes Deployment Flow
 
-Example { "status": "alive" }
+Client  
+→ Ingress Controller  
+→ Kubernetes Service  
+→ FastAPI Pods  
+→ Model Artifact
 
-GET /health/ready\
-Returns readiness status after model loads.
+---
 
-Example { "status": "ready" }
+## AWS Deployment Flow
 
-POST /predict\
+Client  
+→ Application Load Balancer  
+→ Target Group  
+→ ECS Service  
+→ Fargate Task  
+→ FastAPI Container  
+→ Model Artifact
+
+---
+
+# API Endpoints
+
+## Health Check
+
+### GET /health/live
+
+Returns application liveness status.
+
+Example response:
+
+{
+ "status": "alive"
+}
+
+---
+
+### GET /health/ready
+
+Returns readiness status once the model has loaded successfully.
+
+Example response:
+
+{
+ "status": "ready"
+}
+
+---
+
+## Prediction
+
+### POST /predict
+
 Runs inference using the trained model.
 
-Example request { "features": \[5.1, 3.5, 1.4, 0.2\] }
+Example request:
 
-Example response { "prediction": 0 }
+{
+ "features": [5.1, 3.5, 1.4, 0.2]
+}
 
-GET /metrics\
+Example response:
+
+{
+ "prediction": 0
+}
+
+---
+
+## Monitoring
+
+GET /metrics
+
 Prometheus metrics endpoint.
 
-GET /docs\
-Swagger UI interface.
+---
 
-------------------------------------------------------------------------
+## Documentation
 
-## Project Structure
+GET /docs
+
+Interactive Swagger UI for testing endpoints.
+
+---
+
+# Project Structure
 
 ml_inference_api/
 
-.github/\
-app/\
-model/\
-tests/\
-monitoring/\
-k8s/\
-load_tests/\
-scripts/\
-docs/
+app/  
+model/  
+tests/  
+monitoring/  
+k8s/  
+load_tests/  
+scripts/  
 
-Dockerfile\
-docker-compose.yml\
-requirements.txt\
-requirements-dev.txt\
-pytest.ini\
-README.md
+docs/  
+docs/evidence/  
+docs/reports/  
+docs/architecture/  
 
-------------------------------------------------------------------------
+Dockerfile  
+docker-compose.yml  
+requirements.txt  
+README.md  
 
-## Evidence
+---
 
-Verification screenshots are stored in
+# Evidence
+
+Verification screenshots are stored in:
 
 docs/evidence/
 
-Evidence index
+Evidence includes:
 
-docs/evidence/evidence_index.md
+• local API testing  
+• Docker build and runtime verification  
+• Prometheus scraping targets  
+• Grafana dashboards  
+• Locust load testing  
+• GitHub Actions CI success  
+• GHCR container publishing  
+• Kubernetes deployments and pods  
+• Horizontal Pod Autoscaler behaviour  
+• ingress routing  
+• Render public deployment  
+• AWS ECS deployment  
+• AWS target group healthy status  
+• ALB endpoint verification
 
-Evidence includes
+---
 
--   local API validation
--   Docker build and container runtime
--   Prometheus scraping targets
--   Grafana dashboard
--   Locust load testing
--   GitHub Actions CI success
--   GHCR container publishing
--   Kubernetes deployment and pods
--   Horizontal Pod Autoscaler behaviour
--   ingress routing
--   public Render deployment
+# Deployment Summary
 
-------------------------------------------------------------------------
+## Local
 
-## Deployment Summary
+FastAPI application startup verified  
+Swagger UI accessible  
+Prediction endpoint tested
 
-This project has been verified across multiple environments.
+## Docker
 
-Local - FastAPI application start verified - Swagger and prediction
-tested
+Image built successfully  
+Container runtime validated
 
-Docker - image built successfully - container runtime verified
+## Docker Compose Monitoring
 
-Docker Compose Observability Stack - Prometheus scraping confirmed -
-Grafana dashboard operational
+Prometheus scraping confirmed  
+Grafana dashboards operational
 
-CI/CD - GitHub Actions pipeline passed - Docker image pushed to GHCR
+## CI/CD
 
-Kubernetes - deployment applied successfully - pods healthy - HPA
-configured - ingress routing functional
+GitHub Actions pipeline successful  
+Docker image pushed to GHCR
 
-Cloud Deployment - Render deployment successful - model artifact
-generated during build - public endpoints verified
+## Kubernetes
 
-------------------------------------------------------------------------
+Deployment applied successfully  
+Pods healthy  
+HPA configured  
+Ingress routing functional
 
-## Limitations
+## Render
 
-This project demonstrates production-style engineering patterns but is
-not a hardened enterprise deployment.
+Deployment successful  
+Public endpoints verified
 
-Limitations include
+## AWS ECS Fargate
 
--   no authentication or API key protection
--   no rate limiting
--   no formal model registry
--   no secrets management workflow
--   no distributed tracing
--   no alerting rules configured
--   no centralized log aggregation
--   no managed Kubernetes cluster
--   no canary or blue/green release strategy
--   Render free-tier cold start behaviour
+ECR repository created  
+Docker image pushed to ECR  
+ECS cluster created  
+Task definition created  
+ECS service deployed  
+Application Load Balancer configured  
+Target group healthy  
+Public endpoints verified
 
-------------------------------------------------------------------------
+---
 
-## Future Improvements
+# Limitations
 
-Possible improvements
+This project demonstrates **production‑style engineering practices** but is not a hardened enterprise deployment.
 
--   API authentication
--   request throttling
--   model versioning and registry integration
--   structured prediction logging
--   alerting with Prometheus and Grafana
--   infrastructure-as-code provisioning
--   managed Kubernetes deployment
--   progressive deployment strategies
+Current limitations:
 
-------------------------------------------------------------------------
+• No authentication layer  
+• No rate limiting  
+• No model registry  
+• No centralized logging stack  
+• No distributed tracing  
+• No Infrastructure‑as‑Code deployment  
+• ECS service uses a single task instead of autoscaling policies
 
-## What This Project Demonstrates
+---
 
-This project demonstrates applied engineering capability in
+# Future Improvements
 
--   ML artifact management
--   inference API design
--   automated testing
--   observability integration
--   containerization
--   CI/CD workflows
--   container registry publishing
--   Kubernetes orchestration
--   autoscaling
--   ingress routing
--   public cloud deployment
+Possible improvements:
 
-It represents an end-to-end machine learning inference service rather
-than a notebook-only model experiment.
+• API authentication  
+• request throttling  
+• model versioning and registry integration  
+• centralized logging  
+• infrastructure‑as‑code using Terraform  
+• ECS autoscaling policies  
+• advanced monitoring and alerting
+
+---
+
+# What This Project Demonstrates
+
+This project demonstrates practical ML engineering capability in:
+
+• ML artifact management  
+• API design and validation  
+• automated testing  
+• observability integration  
+• containerization  
+• CI/CD workflows  
+• Kubernetes orchestration  
+• cloud deployment  
+• AWS container deployment and load balancing
